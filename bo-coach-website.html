@@ -1,0 +1,820 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bo Coach - ADHD Homework Helper</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700;800&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary-blue: #2D9CDB;
+            --deep-blue: #1A5F7A;
+            --bright-cyan: #56CCF2;
+            --warm-yellow: #F2C94C;
+            --soft-pink: #FF6B9D;
+            --dark-bg: #0A1628;
+            --light-cream: #FEF9F3;
+            --text-dark: #1A1A2E;
+            --gradient-1: linear-gradient(135deg, #2D9CDB 0%, #56CCF2 100%);
+            --gradient-2: linear-gradient(135deg, #FF6B9D 0%, #F2C94C 100%);
+        }
+
+        body {
+            font-family: 'Outfit', sans-serif;
+            background: var(--dark-bg);
+            color: var(--light-cream);
+            overflow-x: hidden;
+            line-height: 1.6;
+        }
+
+        /* Cursor Effect */
+        .custom-cursor {
+            width: 20px;
+            height: 20px;
+            border: 2px solid var(--bright-cyan);
+            border-radius: 50%;
+            position: fixed;
+            pointer-events: none;
+            z-index: 9999;
+            transition: all 0.1s ease;
+            mix-blend-mode: difference;
+        }
+
+        /* Header Styles */
+        header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            padding: 1.5rem 4rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(10, 22, 40, 0.8);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(86, 204, 242, 0.1);
+        }
+
+        .logo {
+            font-family: 'Space Mono', monospace;
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--bright-cyan);
+            letter-spacing: -0.02em;
+        }
+
+        nav {
+            display: flex;
+            gap: 3rem;
+        }
+
+        nav a {
+            color: var(--light-cream);
+            text-decoration: none;
+            font-weight: 400;
+            font-size: 1rem;
+            position: relative;
+            transition: color 0.3s ease;
+        }
+
+        nav a::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: var(--gradient-1);
+            transition: width 0.3s ease;
+        }
+
+        nav a:hover {
+            color: var(--bright-cyan);
+        }
+
+        nav a:hover::after {
+            width: 100%;
+        }
+
+        .header-cta {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+
+        .btn {
+            padding: 0.8rem 1.8rem;
+            border-radius: 50px;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            border: none;
+            font-size: 1rem;
+            font-family: 'Outfit', sans-serif;
+        }
+
+        .btn-primary {
+            background: var(--gradient-1);
+            color: white;
+            box-shadow: 0 4px 20px rgba(45, 156, 219, 0.4);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 30px rgba(45, 156, 219, 0.6);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--bright-cyan);
+            border: 2px solid var(--bright-cyan);
+        }
+
+        .btn-secondary:hover {
+            background: var(--bright-cyan);
+            color: var(--dark-bg);
+        }
+
+        /* Hero Section */
+        .hero-section {
+            position: relative;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+
+        #hero-canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 10;
+            text-align: center;
+            max-width: 900px;
+            padding: 0 2rem;
+        }
+
+        .hero-subtitle {
+            font-family: 'Space Mono', monospace;
+            color: var(--warm-yellow);
+            font-size: 0.9rem;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            margin-bottom: 1rem;
+            opacity: 0;
+            animation: fadeInUp 0.8s ease forwards 0.2s;
+        }
+
+        .hero-title {
+            font-size: clamp(2.5rem, 8vw, 5.5rem);
+            font-weight: 800;
+            line-height: 1.1;
+            margin-bottom: 1.5rem;
+            background: linear-gradient(135deg, var(--bright-cyan), var(--primary-blue), var(--soft-pink));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            opacity: 0;
+            animation: fadeInUp 0.8s ease forwards 0.4s;
+        }
+
+        .hero-description {
+            font-size: 1.3rem;
+            color: rgba(254, 249, 243, 0.8);
+            margin-bottom: 2.5rem;
+            line-height: 1.8;
+            opacity: 0;
+            animation: fadeInUp 0.8s ease forwards 0.6s;
+        }
+
+        .hero-cta {
+            opacity: 0;
+            animation: fadeInUp 0.8s ease forwards 0.8s;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Floating Elements Background */
+        .floating-shapes {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            z-index: 1;
+        }
+
+        .shape {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(60px);
+            opacity: 0.15;
+            animation: float 20s infinite ease-in-out;
+        }
+
+        .shape-1 {
+            width: 400px;
+            height: 400px;
+            background: var(--primary-blue);
+            top: 10%;
+            left: 10%;
+            animation-delay: 0s;
+        }
+
+        .shape-2 {
+            width: 300px;
+            height: 300px;
+            background: var(--soft-pink);
+            bottom: 20%;
+            right: 15%;
+            animation-delay: 5s;
+        }
+
+        .shape-3 {
+            width: 350px;
+            height: 350px;
+            background: var(--warm-yellow);
+            top: 50%;
+            right: 20%;
+            animation-delay: 10s;
+        }
+
+        @keyframes float {
+            0%, 100% {
+                transform: translate(0, 0) rotate(0deg);
+            }
+            33% {
+                transform: translate(30px, -50px) rotate(120deg);
+            }
+            66% {
+                transform: translate(-20px, 20px) rotate(240deg);
+            }
+        }
+
+        /* Story Section */
+        .story-section {
+            position: relative;
+            min-height: 200vh;
+            background: linear-gradient(180deg, var(--dark-bg) 0%, #16213E 100%);
+        }
+
+        .story-container {
+            position: sticky;
+            top: 0;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+
+        .story-content {
+            max-width: 1200px;
+            padding: 0 4rem;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 4rem;
+            align-items: center;
+        }
+
+        .story-visual {
+            position: relative;
+            height: 500px;
+        }
+
+        .homework-card {
+            position: absolute;
+            background: white;
+            border-radius: 20px;
+            padding: 2rem;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            transition: all 0.5s ease;
+        }
+
+        .card-before {
+            width: 300px;
+            top: 50%;
+            left: 0;
+            transform: translateY(-50%);
+            opacity: 1;
+        }
+
+        .card-after {
+            width: 280px;
+            top: 20%;
+            right: -50px;
+            opacity: 0;
+            transform: translateY(-50%) scale(0.8);
+        }
+
+        .card-title {
+            font-family: 'Space Mono', monospace;
+            color: var(--text-dark);
+            font-size: 1.2rem;
+            margin-bottom: 1rem;
+        }
+
+        .task-item {
+            background: #f0f0f0;
+            padding: 0.8rem;
+            margin: 0.5rem 0;
+            border-radius: 10px;
+            color: var(--text-dark);
+            font-size: 0.9rem;
+        }
+
+        .microtask {
+            background: linear-gradient(135deg, #E8F5FF, #D4EDFF);
+            border-left: 4px solid var(--primary-blue);
+            padding: 0.6rem;
+            margin: 0.3rem 0;
+            border-radius: 8px;
+            color: var(--text-dark);
+            font-size: 0.85rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .check-icon {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: var(--primary-blue);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 0.7rem;
+        }
+
+        .story-text h2 {
+            font-size: 2.8rem;
+            margin-bottom: 1.5rem;
+            background: var(--gradient-1);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .story-text p {
+            font-size: 1.2rem;
+            line-height: 1.8;
+            color: rgba(254, 249, 243, 0.8);
+            margin-bottom: 1rem;
+        }
+
+        .feature-list {
+            margin-top: 2rem;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .feature-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 1rem;
+        }
+
+        .feature-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            background: var(--gradient-1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            font-size: 1.2rem;
+        }
+
+        .feature-text {
+            flex: 1;
+        }
+
+        .feature-text h3 {
+            color: var(--bright-cyan);
+            font-size: 1.1rem;
+            margin-bottom: 0.3rem;
+        }
+
+        .feature-text p {
+            font-size: 0.95rem;
+            color: rgba(254, 249, 243, 0.6);
+        }
+
+        /* Footer */
+        footer {
+            background: #050A14;
+            padding: 4rem 4rem 2rem;
+            border-top: 1px solid rgba(86, 204, 242, 0.1);
+        }
+
+        .footer-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr 1fr;
+            gap: 3rem;
+            margin-bottom: 3rem;
+        }
+
+        .footer-brand h3 {
+            font-family: 'Space Mono', monospace;
+            font-size: 1.5rem;
+            color: var(--bright-cyan);
+            margin-bottom: 1rem;
+        }
+
+        .footer-brand p {
+            color: rgba(254, 249, 243, 0.6);
+            font-size: 0.95rem;
+            line-height: 1.6;
+        }
+
+        .footer-links h4 {
+            color: var(--bright-cyan);
+            margin-bottom: 1rem;
+            font-size: 1.1rem;
+        }
+
+        .footer-links ul {
+            list-style: none;
+        }
+
+        .footer-links li {
+            margin-bottom: 0.5rem;
+        }
+
+        .footer-links a {
+            color: rgba(254, 249, 243, 0.6);
+            text-decoration: none;
+            transition: color 0.3s ease;
+            font-size: 0.95rem;
+        }
+
+        .footer-links a:hover {
+            color: var(--bright-cyan);
+        }
+
+        .footer-bottom {
+            text-align: center;
+            padding-top: 2rem;
+            border-top: 1px solid rgba(86, 204, 242, 0.1);
+            color: rgba(254, 249, 243, 0.4);
+            font-size: 0.9rem;
+        }
+
+        /* Scroll Indicator */
+        .scroll-indicator {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 4px;
+            background: var(--gradient-1);
+            z-index: 9999;
+            transform-origin: left;
+            transition: transform 0.1s ease;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            header {
+                padding: 1rem 2rem;
+            }
+
+            nav {
+                display: none;
+            }
+
+            .story-content {
+                grid-template-columns: 1fr;
+                padding: 0 2rem;
+            }
+
+            .story-visual {
+                display: none;
+            }
+
+            .footer-content {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Scroll Indicator -->
+    <div class="scroll-indicator"></div>
+
+    <!-- Custom Cursor -->
+    <div class="custom-cursor"></div>
+
+    <!-- Header -->
+    <header>
+        <div class="logo">Bo_</div>
+        <nav>
+            <a href="#home">Home</a>
+            <a href="#about">About</a>
+            <a href="#how-it-works">How it Works</a>
+        </nav>
+        <div class="header-cta">
+            <a href="#get-started" class="btn btn-secondary">Let's Get Started</a>
+            <a href="#signup" class="btn btn-primary">Sign Up</a>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="hero-section">
+        <div class="floating-shapes">
+            <div class="shape shape-1"></div>
+            <div class="shape shape-2"></div>
+            <div class="shape shape-3"></div>
+        </div>
+        
+        <canvas id="hero-canvas"></canvas>
+        
+        <div class="hero-content">
+            <div class="hero-subtitle">ADHD Behavioral Coach</div>
+            <h1 class="hero-title">Meet Bo, Your Homework Ally</h1>
+            <p class="hero-description">
+                A pocket-sized executive functioning coach powered by AI and behavioral science. 
+                Transform homework battles into peaceful afternoons.
+            </p>
+            <div class="hero-cta">
+                <a href="#get-started" class="btn btn-primary" style="font-size: 1.1rem; padding: 1rem 2.5rem;">Start Your Journey</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Story Section -->
+    <section class="story-section">
+        <div class="story-container">
+            <div class="story-content">
+                <div class="story-visual">
+                    <div class="homework-card card-before">
+                        <h3 class="card-title">😰 Math Homework</h3>
+                        <div class="task-item">Complete Chapter 5: 20 problems</div>
+                        <div class="task-item">Review equations 1-15</div>
+                        <div class="task-item">Write summary paragraph</div>
+                    </div>
+                    <div class="homework-card card-after">
+                        <h3 class="card-title">✨ Bo's Breakdown</h3>
+                        <div class="microtask">
+                            <span class="check-icon">✓</span>
+                            Problem 1-5 (5 min)
+                        </div>
+                        <div class="microtask">
+                            <span class="check-icon">✓</span>
+                            Dance break! 🕺
+                        </div>
+                        <div class="microtask">
+                            <span class="check-icon">○</span>
+                            Problem 6-10 (5 min)
+                        </div>
+                        <div class="microtask">
+                            <span class="check-icon">○</span>
+                            Breathing exercise 🧘
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="story-text">
+                    <h2>From Overwhelming to Achievable</h2>
+                    <p>
+                        Bo transforms dense homework assignments into bite-sized microtasks that ADHD brains 
+                        can actually tackle. No more arguments, no more tears—just progress.
+                    </p>
+                    
+                    <div class="feature-list">
+                        <div class="feature-item">
+                            <div class="feature-icon">🎯</div>
+                            <div class="feature-text">
+                                <h3>Smart Task Breakdown</h3>
+                                <p>AI-powered division of homework into manageable 5-10 minute chunks</p>
+                            </div>
+                        </div>
+                        <div class="feature-item">
+                            <div class="feature-icon">🎮</div>
+                            <div class="feature-text">
+                                <h3>Brain-Approved Breaks</h3>
+                                <p>Dance challenges, breathing exercises, and mini-games between tasks</p>
+                            </div>
+                        </div>
+                        <div class="feature-item">
+                            <div class="feature-icon">📸</div>
+                            <div class="feature-text">
+                                <h3>Photo Validation</h3>
+                                <p>Upload work for instant AI feedback and gentle error correction</p>
+                            </div>
+                        </div>
+                        <div class="feature-item">
+                            <div class="feature-icon">🏆</div>
+                            <div class="feature-text">
+                                <h3>Celebration System</h3>
+                                <p>Confetti, badges, and customizable rewards that motivate completion</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <div class="footer-content">
+            <div class="footer-brand">
+                <h3>Bo Coach</h3>
+                <p>
+                    Empowering ADHD students with AI-driven behavioral coaching. 
+                    Built on neuroscience, designed for real families.
+                </p>
+            </div>
+            <div class="footer-links">
+                <h4>Product</h4>
+                <ul>
+                    <li><a href="#features">Features</a></li>
+                    <li><a href="#pricing">Pricing</a></li>
+                    <li><a href="#demo">Request Demo</a></li>
+                    <li><a href="#schools">For Schools</a></li>
+                </ul>
+            </div>
+            <div class="footer-links">
+                <h4>Company</h4>
+                <ul>
+                    <li><a href="#about">About Us</a></li>
+                    <li><a href="#team">Team</a></li>
+                    <li><a href="#blog">Blog</a></li>
+                    <li><a href="#contact">Contact</a></li>
+                </ul>
+            </div>
+            <div class="footer-links">
+                <h4>Legal</h4>
+                <ul>
+                    <li><a href="#privacy">Privacy Policy</a></li>
+                    <li><a href="#terms">Terms of Service</a></li>
+                    <li><a href="#hipaa">HIPAA Compliance</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2026 Werkable. All rights reserved. Built with ❤️ for ADHD families.</p>
+        </div>
+    </footer>
+
+    <script>
+        // Custom Cursor
+        const cursor = document.querySelector('.custom-cursor');
+        document.addEventListener('mousemove', (e) => {
+            cursor.style.left = e.clientX + 'px';
+            cursor.style.top = e.clientY + 'px';
+        });
+
+        // Scroll Progress Indicator
+        const scrollIndicator = document.querySelector('.scroll-indicator');
+        window.addEventListener('scroll', () => {
+            const scrollPercentage = (window.scrollY / (document.documentElement.scrollHeight - window.innerHeight)) * 100;
+            scrollIndicator.style.transform = `scaleX(${scrollPercentage / 100})`;
+        });
+
+        // Canvas Animation for Hero
+        const canvas = document.getElementById('hero-canvas');
+        const ctx = canvas.getContext('2d');
+        
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+
+        class Particle {
+            constructor() {
+                this.x = Math.random() * canvas.width;
+                this.y = Math.random() * canvas.height;
+                this.size = Math.random() * 3 + 1;
+                this.speedX = Math.random() * 0.5 - 0.25;
+                this.speedY = Math.random() * 0.5 - 0.25;
+                this.color = this.getRandomColor();
+            }
+
+            getRandomColor() {
+                const colors = ['#2D9CDB', '#56CCF2', '#F2C94C', '#FF6B9D'];
+                return colors[Math.floor(Math.random() * colors.length)];
+            }
+
+            update() {
+                this.x += this.speedX;
+                this.y += this.speedY;
+
+                if (this.x > canvas.width || this.x < 0) this.speedX *= -1;
+                if (this.y > canvas.height || this.y < 0) this.speedY *= -1;
+            }
+
+            draw() {
+                ctx.fillStyle = this.color;
+                ctx.globalAlpha = 0.3;
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.globalAlpha = 1;
+            }
+        }
+
+        const particles = [];
+        for (let i = 0; i < 50; i++) {
+            particles.push(new Particle());
+        }
+
+        function animateParticles() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            particles.forEach((particle, index) => {
+                particle.update();
+                particle.draw();
+
+                // Draw connections
+                particles.slice(index + 1).forEach(otherParticle => {
+                    const dx = particle.x - otherParticle.x;
+                    const dy = particle.y - otherParticle.y;
+                    const distance = Math.sqrt(dx * dx + dy * dy);
+
+                    if (distance < 150) {
+                        ctx.strokeStyle = `rgba(86, 204, 242, ${0.2 * (1 - distance / 150)})`;
+                        ctx.lineWidth = 1;
+                        ctx.beginPath();
+                        ctx.moveTo(particle.x, particle.y);
+                        ctx.lineTo(otherParticle.x, otherParticle.y);
+                        ctx.stroke();
+                    }
+                });
+            });
+
+            requestAnimationFrame(animateParticles);
+        }
+
+        animateParticles();
+
+        // Scroll Animation for Story Cards
+        let lastScroll = 0;
+        window.addEventListener('scroll', () => {
+            const scrollPosition = window.scrollY;
+            const storySection = document.querySelector('.story-section');
+            const sectionTop = storySection.offsetTop;
+            const sectionHeight = storySection.offsetHeight;
+            
+            if (scrollPosition >= sectionTop && scrollPosition <= sectionTop + sectionHeight) {
+                const progress = (scrollPosition - sectionTop) / (sectionHeight / 2);
+                const cardBefore = document.querySelector('.card-before');
+                const cardAfter = document.querySelector('.card-after');
+                
+                // Animate card transformation
+                cardBefore.style.opacity = Math.max(1 - progress, 0);
+                cardBefore.style.transform = `translateY(-50%) translateX(${-progress * 100}px) scale(${1 - progress * 0.3})`;
+                
+                cardAfter.style.opacity = Math.min(progress, 1);
+                cardAfter.style.transform = `translateY(-50%) translateX(${(1 - progress) * 100}px) scale(${0.8 + progress * 0.2})`;
+            }
+        });
+
+        // Resize handler
+        window.addEventListener('resize', () => {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        });
+
+        // Smooth scroll for anchor links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth'
+                    });
+                }
+            });
+        });
+    </script>
+</body>
+</html>
