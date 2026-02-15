@@ -1,15 +1,10 @@
-/* app/globals.css */
-@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700;800&family=Space+Mono:wght@400;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Space+Mono:wght@400;700&display=swap');
 
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 @layer base {
-  * {
-    @apply border-border;
-  }
-  
   body {
     @apply bg-dark-bg text-light-cream;
     font-family: 'Outfit', sans-serif;
@@ -20,15 +15,9 @@
   }
 }
 
-@layer utilities {
-  .text-balance {
-    text-wrap: balance;
-  }
-}
-
 /* Custom scrollbar */
 ::-webkit-scrollbar {
-  width: 10px;
+  width: 8px;
 }
 
 ::-webkit-scrollbar-track {
@@ -37,26 +26,91 @@
 
 ::-webkit-scrollbar-thumb {
   background: linear-gradient(180deg, #2D9CDB, #56CCF2);
-  border-radius: 5px;
+  border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
   background: linear-gradient(180deg, #56CCF2, #2D9CDB);
 }
 
-/* Selection color */
 ::selection {
   background-color: rgba(86, 204, 242, 0.3);
   color: #FEF9F3;
 }
 
-/* Smooth animations */
+/* Reduced motion */
 @media (prefers-reduced-motion: reduce) {
-  *,
-  *::before,
-  *::after {
+  *, *::before, *::after {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
   }
+}
+
+/* GSAP reveal helpers */
+.gsap-reveal {
+  opacity: 0;
+  transform: translateY(60px);
+}
+
+.gsap-reveal-left {
+  opacity: 0;
+  transform: translateX(-80px);
+}
+
+.gsap-reveal-right {
+  opacity: 0;
+  transform: translateX(80px);
+}
+
+.gsap-scale-in {
+  opacity: 0;
+  transform: scale(0.8);
+}
+
+/* Gradient text helper */
+.gradient-text {
+  background: linear-gradient(135deg, #56CCF2, #2D9CDB, #FF6B9D);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Glass card */
+.glass-card {
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* Glow button */
+.glow-btn {
+  position: relative;
+  overflow: hidden;
+}
+
+.glow-btn::before {
+  content: '';
+  position: absolute;
+  top: -2px;
+  left: -2px;
+  right: -2px;
+  bottom: -2px;
+  background: linear-gradient(45deg, #56CCF2, #2D9CDB, #FF6B9D, #F2C94C, #56CCF2);
+  background-size: 400%;
+  border-radius: inherit;
+  z-index: -1;
+  animation: glowRotate 3s linear infinite;
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+.glow-btn:hover::before {
+  opacity: 1;
+}
+
+@keyframes glowRotate {
+  0% { background-position: 0 0; }
+  50% { background-position: 400% 0; }
+  100% { background-position: 0 0; }
 }
