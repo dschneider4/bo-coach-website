@@ -80,17 +80,18 @@ export async function POST(request) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 
-  const { description } = await request.json()
-  if (!description || description.trim().length === 0) {
+  const { description, extractedText } = await request.json()
+  const combinedText = [description, extractedText].filter(Boolean).join(' ').trim()
+  if (!combinedText) {
     return NextResponse.json({ error: 'Please describe your homework' }, { status: 400 })
   }
 
-  const subject = detectSubject(description)
+  const subject = detectSubject(combinedText)
   const template = taskTemplates[subject]
 
   return NextResponse.json({
     subject: template.subject,
-    description: description.trim(),
+    description: combinedText,
     tasks: template.tasks,
     boMessage: `Okay, I see ${template.subject.toLowerCase()} homework! I broke it into ${template.tasks.filter(t => t.type === 'task').length} mini-tasks with breaks built in. You got this! Let's start with step 1.`,
   })

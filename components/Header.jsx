@@ -52,6 +52,12 @@ export default function Header() {
           {session ? (
             <>
               <Link
+                href="/dashboard"
+                className="px-5 py-2.5 rounded-full border border-bright-cyan/30 text-bright-cyan text-sm hover:bg-bright-cyan/10 transition-all duration-300"
+              >
+                Dashboard
+              </Link>
+              <Link
                 href="/coach"
                 className="px-5 py-2.5 rounded-full bg-gradient-to-r from-primary-blue to-bright-cyan text-white text-sm hover:shadow-lg hover:shadow-primary-blue/30 hover:-translate-y-0.5 active:scale-95 transition-all duration-300"
               >
@@ -117,6 +123,13 @@ export default function Header() {
         ))}
         {session ? (
           <>
+            <Link
+              href="/dashboard"
+              className="text-2xl text-light-cream/80 hover:text-bright-cyan transition-colors"
+              onClick={() => setMenuOpen(false)}
+            >
+              Dashboard
+            </Link>
             <Link
               href="/coach"
               className="px-8 py-3 rounded-full bg-gradient-to-r from-primary-blue to-bright-cyan text-white"

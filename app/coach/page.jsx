@@ -3,8 +3,9 @@
 import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
 import { useEffect } from 'react'
-import { LogOut, Home } from 'lucide-react'
+import { LogOut, Home, BarChart3 } from 'lucide-react'
 import { signOut } from 'next-auth/react'
+import Link from 'next/link'
 import CoachChat from '../../components/coach/CoachChat'
 
 export default function CoachPage() {
@@ -42,6 +43,13 @@ export default function CoachPage() {
         </div>
 
         <div className="flex items-center gap-3">
+          <Link
+            href="/dashboard"
+            className="text-light-cream/40 hover:text-bright-cyan transition-colors p-1"
+            title="Dashboard"
+          >
+            <BarChart3 className="w-4 h-4" />
+          </Link>
           {session.user?.image && (
             <img
               src={session.user.image}

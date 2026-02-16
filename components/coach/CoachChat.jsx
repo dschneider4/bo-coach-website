@@ -6,6 +6,9 @@ import { Send, Loader2 } from 'lucide-react'
 import ChatBubble from './ChatBubble'
 import TaskChecklist from './TaskChecklist'
 import CompletionCard from './CompletionCard'
+import VoiceInput from './VoiceInput'
+import PhotoUpload from './PhotoUpload'
+import OnboardingFlow from './OnboardingFlow'
 
 const WELCOME_MESSAGE = "Hey! I'm Bo, your homework coach. You say it, I'll help you slay it! Tell me what you're working on today."
 
@@ -16,19 +19,28 @@ export default function CoachChat() {
   const [input, setInput] = useState('')
   const [taskData, setTaskData] = useState(null)
   const [completedIds, setCompletedIds] = useState([])
+  const [imagePreview, setImagePreview] = useState(null)
+  const [showOnboarding, setShowOnboarding] = useState(false)
   const chatEndRef = useRef(null)
   const inputRef = useRef(null)
 
   const firstName = session?.user?.name?.split(' ')[0] || 'friend'
 
   useEffect(() => {
+    // Check if first visit
+    const hasVisited = localStorage.getItem('bo-onboarded')
+    if (!hasVisited) {
+      setShowOnboarding(true)
+      return
+    }
+
     // Show welcome message with typing effect
     const timer = setTimeout(() => {
       setMessages([{ sender: 'bo', text: `Hey ${firstName}! ${WELCOME_MESSAGE.slice(22)}` }])
       setPhase('input')
     }, 1000)
     return () => clearTimeout(timer)
-  }, [firstName])
+  }, [firstName, showOnboarding])
 
   useEffect(() => {
     chatEndRef.current?.scrollIntoView({ behavior: 'smooth' })
@@ -38,13 +50,28 @@ export default function CoachChat() {
     if (phase === 'input') inputRef.current?.focus()
   }, [phase])
 
+  const handleOnboardingComplete = () => {
+    localStorage.setItem('bo-onboarded', 'true')
+    setShowOnboarding(false)
+    setTimeout(() => {
+      setMessages([{ sender: 'bo', text: `Hey ${firstName}! ${WELCOME_MESSAGE.slice(22)}` }])
+      setPhase('input')
+    }, 500)
+  }
+
   const handleSubmit = async (e) => {
     e.preventDefault()
     const text = input.trim()
     if (!text || phase !== 'input') return
 
-    setMessages((prev) => [...prev, { sender: 'user', text }])
+    const msgData = { sender: 'user', text }
+    if (imagePreview) {
+      msgData.image = imagePreview
+    }
+
+    setMessages((prev) => [...prev, msgData])
     setInput('')
+    setImagePreview(null)
     setPhase('analyzing')
 
     // Show Bo typing
@@ -108,6 +135,7 @@ export default function CoachChat() {
     setInput('')
     setTaskData(null)
     setCompletedIds([])
+    setImagePreview(null)
 
     setTimeout(() => {
       setMessages([{ sender: 'bo', text: `Ready for round two, ${firstName}? What are we tackling now?` }])
@@ -115,12 +143,26 @@ export default function CoachChat() {
     }, 800)
   }
 
+  const handleVoiceTranscript = (transcript) => {
+    setInput((prev) => (prev ? prev + ' ' + transcript : transcript))
+    inputRef.current?.focus()
+  }
+
+  const handleExtractedText = (text) => {
+    setInput((prev) => (prev ? prev + '\n' + text : text))
+    inputRef.current?.focus()
+  }
+
+  if (showOnboarding) {
+    return <OnboardingFlow onComplete={handleOnboardingComplete} firstName={firstName} />
+  }
+
   return (
     <div className="flex flex-col h-[calc(100vh-4rem)] max-w-2xl mx-auto">
       {/* Chat messages */}
       <div className="flex-1 overflow-y-auto px-4 py-6 space-y-4 scrollbar-thin">
         {messages.map((msg, i) => (
-          <ChatBubble key={i} message={msg.text} sender={msg.sender} />
+          <ChatBubble key={i} message={msg.text} sender={msg.sender} image={msg.image} />
         ))}
 
         {phase === 'analyzing' && <ChatBubble sender="bo" isTyping />}
@@ -151,14 +193,31 @@ export default function CoachChat() {
 
       {/* Input area */}
       {(phase === 'input' || phase === 'welcome') && (
-        <div className="border-t border-white/5 px-4 py-4">
-          <form onSubmit={handleSubmit} className="flex gap-3">
+        <div className="border-t border-white/5 px-4 py-4 coach-input-bar">
+          {imagePreview && (
+            <div className="mb-2 flex items-center gap-2">
+              <div className="w-10 h-10 rounded-lg overflow-hidden border border-white/10">
+                <img src={imagePreview} alt="Upload" className="w-full h-full object-cover" />
+              </div>
+              <span className="text-xs text-bright-cyan/60">Photo attached</span>
+            </div>
+          )}
+          <form onSubmit={handleSubmit} className="flex gap-2 items-end">
+            <PhotoUpload
+              onExtractedText={handleExtractedText}
+              onImagePreview={setImagePreview}
+              disabled={phase === 'welcome'}
+            />
+            <VoiceInput
+              onTranscript={handleVoiceTranscript}
+              disabled={phase === 'welcome'}
+            />
             <input
               ref={inputRef}
               type="text"
               value={input}
               onChange={(e) => setInput(e.target.value)}
-              placeholder="Describe your homework (e.g., 'Math worksheet on fractions')"
+              placeholder="Describe your homework..."
               className="flex-1 bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-light-cream placeholder:text-light-cream/30 focus:outline-none focus:border-bright-cyan/50 focus:ring-1 focus:ring-bright-cyan/25 transition-all"
               disabled={phase === 'welcome'}
             />

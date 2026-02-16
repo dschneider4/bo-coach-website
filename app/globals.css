@@ -151,6 +151,51 @@
   }
 }
 
+/* Voice pulse animation */
+.voice-pulse {
+  animation: voicePulse 1s ease-in-out infinite;
+}
+
+@keyframes voicePulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.5; transform: scale(1.5); }
+}
+
+/* Onboarding slide animation */
+.onboarding-slide {
+  animation: onboardingFadeIn 0.4s ease-out forwards;
+}
+
+@keyframes onboardingFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Mobile input bar - sticky at bottom */
+@media (max-width: 768px) {
+  .coach-input-bar {
+    position: sticky;
+    bottom: 0;
+    background: rgba(10, 22, 40, 0.98);
+    backdrop-filter: blur(12px);
+    padding-bottom: max(1rem, env(safe-area-inset-bottom));
+  }
+}
+
+/* Larger touch targets for mobile task checkboxes */
+@media (max-width: 768px) {
+  input[type="checkbox"] {
+    min-width: 22px;
+    min-height: 22px;
+  }
+}
+
 /* Thin scrollbar for chat */
 .scrollbar-thin::-webkit-scrollbar {
   width: 4px;

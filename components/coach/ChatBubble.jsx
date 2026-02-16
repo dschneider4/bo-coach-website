@@ -1,6 +1,6 @@
 'use client'
 
-export default function ChatBubble({ message, sender, isTyping }) {
+export default function ChatBubble({ message, sender, isTyping, image }) {
   const isBo = sender === 'bo'
 
   if (isTyping) {
@@ -38,6 +38,11 @@ export default function ChatBubble({ message, sender, isTyping }) {
             : 'bg-gradient-to-r from-primary-blue/30 to-bright-cyan/20 border border-bright-cyan/20 rounded-tr-sm text-light-cream'
         }`}
       >
+        {image && (
+          <div className="mb-2 rounded-lg overflow-hidden max-w-[240px]">
+            <img src={image} alt="Homework photo" className="w-full h-auto" />
+          </div>
+        )}
         <p className="text-sm leading-relaxed whitespace-pre-wrap">{message}</p>
       </div>
     </div>

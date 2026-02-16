@@ -32,6 +32,38 @@ export async function POST(request) {
     },
   })
 
+  // Update user stats
+  try {
+    const today = new Date().toISOString().split('T')[0]
+    const user = await prisma.user.findUnique({ where: { id: session.user.id } })
+
+    const taskCount = (tasks || []).filter((t) => t.type === 'task').length
+    let newStreak = 1
+
+    if (user?.lastActiveDate) {
+      const lastDate = new Date(user.lastActiveDate)
+      const todayDate = new Date(today)
+      const diff = (todayDate - lastDate) / 86400000
+
+      if (diff === 0) {
+        newStreak = user.streak || 1
+      } else if (diff === 1) {
+        newStreak = (user.streak || 0) + 1
+      }
+    }
+
+    await prisma.user.update({
+      where: { id: session.user.id },
+      data: {
+        streak: newStreak,
+        totalTasksCompleted: { increment: taskCount },
+        lastActiveDate: today,
+      },
+    })
+  } catch {
+    // Stats update is non-critical
+  }
+
   return NextResponse.json({ id: coachSession.id, badge: coachSession.badge })
 }
 
@@ -48,7 +80,7 @@ export async function GET() {
   const sessions = await prisma.coachSession.findMany({
     where: { userId: session.user.id },
     orderBy: { completedAt: 'desc' },
-    take: 20,
+    take: 50,
   })
 
   return NextResponse.json(
