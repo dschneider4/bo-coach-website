@@ -1,9 +1,7 @@
 'use client';
 
-import dynamic from 'next/dynamic';
 import ErrorBoundary from './ErrorBoundary';
-
-const Hero3D = dynamic(() => import('./Hero3D'), { ssr: false });
+import Hero3D from './Hero3D';
 
 const heroFallback = (
   <div className="absolute inset-0 w-full h-full">
