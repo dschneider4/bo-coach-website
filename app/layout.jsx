@@ -1,5 +1,5 @@
-// app/layout.jsx
 import './globals.css'
+import Providers from './providers'
 
 export const metadata = {
   title: 'Bo Coach - ADHD Homework Helper',
@@ -19,7 +19,9 @@ export default function RootLayout({ children }) {
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
       </head>
-      <body className="antialiased">{children}</body>
+      <body className="antialiased">
+        <Providers>{children}</Providers>
+      </body>
     </html>
   )
 }

@@ -1,8 +1,11 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useSession, signOut } from 'next-auth/react';
+import Link from 'next/link';
 
 export default function Header() {
+  const { data: session } = useSession();
   const [menuOpen, setMenuOpen] = useState(false);
   const [headerSolid, setHeaderSolid] = useState(false);
   const [scrollProgress, setScrollProgress] = useState(0);
@@ -45,13 +48,47 @@ export default function Header() {
           ))}
         </nav>
 
-        <div className="hidden md:flex gap-3">
-          <button className="px-5 py-2.5 rounded-full border border-bright-cyan/50 text-bright-cyan text-sm hover:bg-bright-cyan/10 transition-all duration-300">
-            Let&apos;s Get Started
-          </button>
-          <button className="px-5 py-2.5 rounded-full bg-gradient-to-r from-primary-blue to-bright-cyan text-white text-sm hover:shadow-lg hover:shadow-primary-blue/30 hover:-translate-y-0.5 active:scale-95 transition-all duration-300">
-            Sign Up
-          </button>
+        <div className="hidden md:flex gap-3 items-center">
+          {session ? (
+            <>
+              <Link
+                href="/coach"
+                className="px-5 py-2.5 rounded-full bg-gradient-to-r from-primary-blue to-bright-cyan text-white text-sm hover:shadow-lg hover:shadow-primary-blue/30 hover:-translate-y-0.5 active:scale-95 transition-all duration-300"
+              >
+                Open Coach
+              </Link>
+              <div className="flex items-center gap-2 ml-1">
+                {session.user?.image && (
+                  <img
+                    src={session.user.image}
+                    alt=""
+                    className="w-8 h-8 rounded-full border-2 border-bright-cyan/30"
+                  />
+                )}
+                <button
+                  onClick={() => signOut({ callbackUrl: '/' })}
+                  className="text-light-cream/40 hover:text-soft-pink text-xs transition-colors"
+                >
+                  Sign out
+                </button>
+              </div>
+            </>
+          ) : (
+            <>
+              <Link
+                href="/auth/signin"
+                className="px-5 py-2.5 rounded-full border border-bright-cyan/50 text-bright-cyan text-sm hover:bg-bright-cyan/10 transition-all duration-300"
+              >
+                Let&apos;s Get Started
+              </Link>
+              <Link
+                href="/auth/signin"
+                className="px-5 py-2.5 rounded-full bg-gradient-to-r from-primary-blue to-bright-cyan text-white text-sm hover:shadow-lg hover:shadow-primary-blue/30 hover:-translate-y-0.5 active:scale-95 transition-all duration-300"
+              >
+                Sign Up
+              </Link>
+            </>
+          )}
         </div>
 
         <button
@@ -78,12 +115,31 @@ export default function Header() {
             {item}
           </a>
         ))}
-        <button
-          className="px-8 py-3 rounded-full bg-gradient-to-r from-primary-blue to-bright-cyan text-white"
-          onClick={() => setMenuOpen(false)}
-        >
-          Sign Up
-        </button>
+        {session ? (
+          <>
+            <Link
+              href="/coach"
+              className="px-8 py-3 rounded-full bg-gradient-to-r from-primary-blue to-bright-cyan text-white"
+              onClick={() => setMenuOpen(false)}
+            >
+              Open Coach
+            </Link>
+            <button
+              onClick={() => { setMenuOpen(false); signOut({ callbackUrl: '/' }); }}
+              className="text-light-cream/40 hover:text-soft-pink transition-colors"
+            >
+              Sign out
+            </button>
+          </>
+        ) : (
+          <Link
+            href="/auth/signin"
+            className="px-8 py-3 rounded-full bg-gradient-to-r from-primary-blue to-bright-cyan text-white"
+            onClick={() => setMenuOpen(false)}
+          >
+            Sign Up
+          </Link>
+        )}
       </div>
     </>
   );
